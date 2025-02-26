@@ -334,49 +334,6 @@ if rs.ISM
             
             % filter with source directivity
             if H.srcN | strcmpi(rs.src, 'CARDIOID')
-                %========= what seems to work but doesn't make sense =========
-                % src_rotation_az = rs.srcView(1,1);
-                % src_rotation_el = rs.srcView(1,2);
-                % ism_emit_rot_az = ISM(ss).Src_az(ii);
-                % ism_emit_rot_el = ISM(ss).Src_el(ii);
-                % 
-                % % Ynm = AKsh(H.rec.SH.order, [], ism_incident_pos_az, ism_incident_pos_el);
-                % hTmp = AKisht(H.src.SH.coeff, false, [src_rotation_el + ism_emit_rot_az, 180 + src_rotation_az + ism_emit_rot_el], H.src.SH.SHTmode, H.src.SH.isEven, H.src.SH.compact, H.src.SH.SHmode);
-                % 
-                % % get source directivity
-                % % hTmp = AKisht(H.src.SH.coeff, H.src.SH.doFFT, [ISM(ss).Src_az(ii) 90-ISM(ss).Src_el(ii)], H.src.SH.SHTmode, H.src.SH.isEven, H.src.SH.compact, H.src.SH.SHmode);
-                % % discard imaginary small part, due to rounding erros
-                % % hTmp = real(hTmp);
-                % 
-                % % interpolate to desired frequencies
-                % % hTmp = AKinterpolateSpectrum(hTmp, H.src.N, H.N, {'nearest' 'linear' 'nearest'}, rs.fs);
-                % 
-                % % apply
-                % h = h .* hTmp;
-                %=====================================================
-                
-                %========= what makes sense but doesn't work =========
-                % src_rotation_az = rs.srcView(1,1);
-                % src_rotation_el = rs.srcView(1,2);
-                % ism_emission_rot_az = ISM(ss).Src_az(ii);
-                % ism_emission_rot_el = ISM(ss).Src_el(ii);
-                % 
-                % % Ynm = AKsh(H.rec.SH.order, [], ism_incident_rot_az, ism_incident_rot_el);
-                % % hTmp = AKisht(H.rec.SH.coeff, true, Ynm, 'complex');
-                % hTmp = AKisht(H.src.SH.coeff, ...
-                %     false, ...
-                %     [src_rotation_az + ism_emission_rot_az, 90 - src_rotation_el + ism_emission_rot_el], ...
-                %     H.src.SH.SHTmode, ...
-                %     H.src.SH.isEven, ...
-                %     H.src.SH.compact, ...
-                %     H.src.SH.SHmode);
-                % 
-                % hTmp = real(hTmp);
-                % 
-                % % apply
-                % h = h .* hTmp;
-                %=====================================================
-
                 % get source directivity
                 hTmp = AKisht(H.src.SH.coeff, false, [ISM(ss).Src_az(ii) 90-ISM(ss).Src_el(ii)], H.src.SH.SHTmode, H.src.SH.isEven, H.src.SH.compact, H.src.SH.SHmode);
 
@@ -413,52 +370,6 @@ if rs.ISM
             %      % filter with source directivity
             % else
             if strcmpi(rs.rec, 'CARDIOID') | strcmpi(rs.rec, '3RD_ORDER_SPHERICAL_HARMONICS')
-                % get source directivity
-                % hTmp = AKisht(H.rec.SH.coeff, H.rec.SH.doFFT, [ISM(ss).Rec_az(ii) 90-ISM(ss).Rec_el(ii)], H.rec.SH.SHTmode, H.rec.SH.isEven, H.rec.SH.compact, H.rec.SH.SHmode);
-                % discard imaginary small part, due to rounding erros rs.recView(1,1) +  rs.recView(1,2) + 
-                
-                %========= what makes sense but doesn't work =========
-                % rec_rotation_az = rs.recView(1,1);
-                % rec_rotation_el = rs.recView(1,2);
-                % ism_incident_rot_az = ISM(ss).Rec_AZ(ii,:)';
-                % ism_incident_rot_el = ISM(ss).Rec_EL(ii,:)';
-                % 
-                % % Ynm = AKsh(H.rec.SH.order, [], ism_incident_rot_az, ism_incident_rot_el);
-                % % hTmp = AKisht(H.rec.SH.coeff, true, Ynm, 'complex');
-                % hTmp = AKisht(H.rec.SH.coeff, ...
-                %     false, ...
-                %     [rec_rotation_az + ism_incident_rot_az, 90 - rec_rotation_el + ism_incident_rot_el], ...
-                %     H.rec.SH.SHTmode, ...
-                %     H.rec.SH.isEven, ...
-                %     H.rec.SH.compact, ...
-                %     H.rec.SH.SHmode);
-                % 
-                % hTmp = real(hTmp);
-                % 
-                % % apply
-                % h = h .* hTmp;
-                %=====================================================
-
-                %========= seems to work but doesn't make sense =========
-                % rec_rotation_az = rs.recView(1,1);
-                % rec_rotation_el = rs.recView(1,2);
-                % ism_incident_rot_az = ISM(ss).Rec_AZ(ii,:)';
-                % ism_incident_rot_el = ISM(ss).Rec_EL(ii,:)';
-                % 
-                % % get source directivity
-                % reflection_weighting = AKisht(H.rec.SH.coeff, H.rec.SH.doFFT, [rec_rotation_el + ism_incident_rot_az, rec_rotation_az + 90 - ism_incident_rot_el], H.rec.SH.SHTmode, H.rec.SH.isEven, H.rec.SH.compact, H.rec.SH.SHmode);
-                % % discard imaginary small part, due to rounding erros
-                % reflection_weighting = real(reflection_weighting);
-                % 
-                % % interpolate to desired frequencies
-                % % hTmp = AKinterpolateSpectrum(hTmp, H.rec.N, H.N, {'nearest' 'linear' 'nearest'}, rs.fs);
-                % % 
-                % % hTmp = AKsingle2bothSidedSpectrum(hTmp, H.N);
-                % 
-                % % apply
-                % h = h * reflection_weighting;
-                %=====================================================
-
                 % get source directivity
                 reflection_weighting = AKisht(H.rec.SH.coeff, H.rec.SH.doFFT, [ISM(ss).Rec_AZ(ii,:)',  90-ISM(ss).Rec_EL(ii,:)'], H.rec.SH.SHTmode, H.rec.SH.isEven, H.rec.SH.compact, H.rec.SH.SHmode);
                 % discard imaginary small part, due to rounding erros
