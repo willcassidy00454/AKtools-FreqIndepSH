@@ -131,7 +131,14 @@ if isempty(rs.srcView)
     % mirror to get source rotation
     rs.srcView = [mod(180+tmp(:,1), 360) -tmp(:,2)];
     clear az el tmp
-    
+else
+    % Add -90deg elevation correction
+    rs.srcView(2) = rs.srcView(2) - 90;
+end
+
+if ~isempty(rs.recView)
+    % Add -90deg elevation correction
+    rs.recView(2) = rs.recView(2) - 90;
 end
 
 % --- get the source position(s) in carthesian coordinates --- %
@@ -335,10 +342,10 @@ if rs.ISM
             % filter with source directivity
             if H.srcN | strcmpi(rs.src, 'CARDIOID')
                 % get source directivity
-                hTmp = AKisht(H.src.SH.coeff, false, [ISM(ss).Src_az(ii) 90-ISM(ss).Src_el(ii)], H.src.SH.SHTmode, H.src.SH.isEven, H.src.SH.compact, H.src.SH.SHmode);
-
+                reflection_weighting = AKisht(H.src.SH.coeff, false, [ISM(ss).Src_az(ii) 90-ISM(ss).Src_el(ii)], H.src.SH.SHTmode, H.src.SH.isEven, H.src.SH.compact, H.src.SH.SHmode);
+                
                 % apply
-                h = h .* hTmp;
+                h = h * reflection_weighting;
             end
             
             % get min-phase IR
