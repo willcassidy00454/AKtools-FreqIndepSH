@@ -136,7 +136,7 @@ else
     rs.srcView(2) = rs.srcView(2) - 90;
 end
 
-if ~isempty(rs.recView)
+if ~isempty(rs.recView) && strcmpi(rs.rec, 'CARDIOID')
     % Add -90deg elevation correction
     rs.recView(2) = rs.recView(2) - 90;
 end
@@ -204,7 +204,7 @@ elseif strcmpi(rs.rec, 'CARDIOID')
     
     rs.recHRTF = false;
 elseif strcmpi(rs.rec, '3RD_ORDER_SPHERICAL_HARMONICS')
-    H.rec  = load("third_order_sh_unity_at_pos_"+third_order_sh_index+".mat"); % spherical harmonics coefficients
+    H.rec  = load("ACN_SN3D_SH_"+third_order_sh_index+".mat"); % spherical harmonics coefficients
     H.recN = 0;                                          % length of impulse responses
     
     % give the mean time of arrival, i.e. number of leading zeros in
@@ -376,9 +376,16 @@ if rs.ISM
             %     h = cat(3, hL, hR);
             %      % filter with source directivity
             % else
-            if strcmpi(rs.rec, 'CARDIOID') | strcmpi(rs.rec, '3RD_ORDER_SPHERICAL_HARMONICS')
+            if strcmpi(rs.rec, 'CARDIOID')
                 % get source directivity
                 reflection_weighting = AKisht(H.rec.SH.coeff, H.rec.SH.doFFT, [ISM(ss).Rec_AZ(ii,:)',  90-ISM(ss).Rec_EL(ii,:)'], H.rec.SH.SHTmode, H.rec.SH.isEven, H.rec.SH.compact, H.rec.SH.SHmode);
+                % discard imaginary small part, due to rounding erros
+                reflection_weighting = real(reflection_weighting);
+                % apply
+                h = h * reflection_weighting;
+            elseif strcmpi(rs.rec, '3RD_ORDER_SPHERICAL_HARMONICS')
+                % get source directivity
+                reflection_weighting = AKisht(H.rec.SH.coeff, H.rec.SH.doFFT, [ISM(ss).Rec_AZ(ii,:)' - 90,  90-ISM(ss).Rec_EL(ii,:)'], H.rec.SH.SHTmode, H.rec.SH.isEven, H.rec.SH.compact, H.rec.SH.SHmode);
                 % discard imaginary small part, due to rounding erros
                 reflection_weighting = real(reflection_weighting);
                 % apply
