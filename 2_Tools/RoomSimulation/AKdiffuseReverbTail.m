@@ -212,6 +212,9 @@ switch decay_mode
         
         % time axis
         t = (0:T_max-1)/fs;
+
+        % Set seed
+        rng("default");
         
         % get gaussian white noise
         reverb_noise = randn(T_max,rev_channel);
